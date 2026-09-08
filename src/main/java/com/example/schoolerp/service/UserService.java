@@ -10,6 +10,7 @@ import com.example.schoolerp.exception.SchoolNotFoundException;
 import com.example.schoolerp.exception.UserNotFoundException;
 import com.example.schoolerp.repository.SchoolRepository;
 import com.example.schoolerp.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,10 +18,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final SchoolRepository schoolRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, SchoolRepository schoolRepository) {
+    public UserService(UserRepository userRepository, SchoolRepository schoolRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponse createUser(UserRequest request){
@@ -38,7 +41,7 @@ public class UserService {
 
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
         user.setSchool(school);
 
@@ -68,7 +71,7 @@ public class UserService {
                 savedUser.getEmail(),
                 savedUser.getRole(),
                 savedUser.getStatus(),
-                savedUser.getSchool() != null? savedUser.getId() : null,
+                savedUser.getSchool() != null? savedUser.getSchool().getId() : null,
                 savedUser.getCreatedAt()
         );
     }
