@@ -153,5 +153,32 @@ public class UserService {
         return response;
     }
 
+    public void deleteUser(Long id){
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: "+ id));
+
+        if (user.getRole() == UserRole.SUPER_ADMIN){
+            throw new IllegalArgumentException("You cannot delete a super admin");
+        }
+
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN){
+            if (user.getRole() != UserRole.SCHOOL_ADMIN){
+                throw new IllegalArgumentException("Super Admin can only delete school admins\"");
+            }
+        } else if (currentUser.getRole() == UserRole.SCHOOL_ADMIN){
+            if (!currentUser.getSchool().getId().equals(user.getSchool().getId())){
+                throw new IllegalArgumentException("You cannot delete users from other schools");
+            }
+            if (user.getRole() == UserRole.SCHOOL_ADMIN){
+                throw new IllegalArgumentException("School Admin cannot delete another school admin");
+            }
+        }
+
+        userRepository.deleteById(id);
+    }
+
 
 }

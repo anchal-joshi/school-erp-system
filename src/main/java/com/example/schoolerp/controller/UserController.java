@@ -47,4 +47,12 @@ public class UserController {
 
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SCHOOL_ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id){
+
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully!");
+    }
 }
