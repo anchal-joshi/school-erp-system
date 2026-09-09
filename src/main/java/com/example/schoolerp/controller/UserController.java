@@ -2,7 +2,6 @@ package com.example.schoolerp.controller;
 
 import com.example.schoolerp.dto.UserRequest;
 import com.example.schoolerp.dto.UserResponse;
-import com.example.schoolerp.entity.User;
 import com.example.schoolerp.entity.UserStatus;
 import com.example.schoolerp.security.CurrentUserService;
 import com.example.schoolerp.service.UserService;

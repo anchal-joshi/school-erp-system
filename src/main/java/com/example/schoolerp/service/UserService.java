@@ -100,12 +100,30 @@ public class UserService {
     }
 
     public UserResponse updateStatus(Long id, UserStatus status){
+
+        User currentUser = currentUserService.getCurrentUser();
+
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
                         new UserNotFoundException(
                                 "User not found with id: "+ id
                         )
                 );
+
+        if (user.getRole() == UserRole.SUPER_ADMIN){
+            throw new IllegalArgumentException(
+                    "You cannot change the status of a Super Admin"
+            );
+        }
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN){
+
+            if (!currentUserService.getCurrentSchoolId().equals(user.getSchool().getId())){
+                throw new IllegalArgumentException("You cannot change status of users outside your school");
+            }
+
+        }
+
         user.setStatus(status);
         User savedUser = userRepository.save(user);
         return new UserResponse(
