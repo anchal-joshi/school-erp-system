@@ -1,5 +1,8 @@
 package com.example.schoolerp.security;
 
+import com.example.schoolerp.entity.SchoolStatus;
+import com.example.schoolerp.entity.User;
+import com.example.schoolerp.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,10 +20,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private JwtService jwtService;
     private CustomUserDetailsService service;
+    private final UserRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService service){
+    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService service, UserRepository userRepository){
         this.jwtService = jwtService;
         this.service = service;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -49,6 +54,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         userDetails.getAuthorities());
 
 
+        User user = userRepository.findByEmail(userDetails.getUsername());
+        if (user.getSchool() !=null){
+            if (user.getSchool().getStatus() == SchoolStatus.INACTIVE){
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+        }
         SecurityContextHolder.getContext().setAuthentication(token);
 
         filterChain.doFilter(request, response);
