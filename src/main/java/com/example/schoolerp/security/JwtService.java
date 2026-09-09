@@ -1,5 +1,7 @@
 package com.example.schoolerp.security;
 
+import com.example.schoolerp.entity.User;
+import com.example.schoolerp.entity.UserRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Valid;
@@ -24,9 +26,14 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String generateToken(String email){
+    public String generateToken(User user){
+        Long schoolId = user.getSchool() != null
+                ? user.getSchool().getId()
+                : null;
         return Jwts.builder()
-                .subject(email)
+                .subject(user.getEmail())
+                .claim("role", user.getRole().name())
+                .claim("schoolId", schoolId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey())

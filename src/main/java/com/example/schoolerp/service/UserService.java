@@ -1,5 +1,6 @@
 package com.example.schoolerp.service;
 
+import com.example.schoolerp.dto.SchoolResponse;
 import com.example.schoolerp.dto.UserRequest;
 import com.example.schoolerp.dto.UserResponse;
 import com.example.schoolerp.entity.School;
@@ -10,8 +11,12 @@ import com.example.schoolerp.exception.SchoolNotFoundException;
 import com.example.schoolerp.exception.UserNotFoundException;
 import com.example.schoolerp.repository.SchoolRepository;
 import com.example.schoolerp.repository.UserRepository;
+import com.example.schoolerp.security.CurrentUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -19,11 +24,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final SchoolRepository schoolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CurrentUserService currentUserService;
 
-    public UserService(UserRepository userRepository, SchoolRepository schoolRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, SchoolRepository schoolRepository, PasswordEncoder passwordEncoder, CurrentUserService currentUserService) {
         this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
         this.passwordEncoder = passwordEncoder;
+        this.currentUserService = currentUserService;
     }
 
     public UserResponse createUser(UserRequest request){
@@ -74,6 +81,23 @@ public class UserService {
                 savedUser.getSchool() != null? savedUser.getSchool().getId() : null,
                 savedUser.getCreatedAt()
         );
+    }
+
+    public List<UserResponse> getAllUsers(){
+        Long schoolId = currentUserService.getCurrentSchoolId();
+        List<User> users = userRepository.findBySchool_Id(schoolId);
+        List<UserResponse> response = users
+                .stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.getStatus(),
+                        user.getSchool() != null? user.getSchool().getId() : null,
+                        user.getCreatedAt())
+                )
+                .collect(Collectors.toList());
+        return response;
     }
 
 

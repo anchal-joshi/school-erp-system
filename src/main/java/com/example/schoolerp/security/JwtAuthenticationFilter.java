@@ -1,6 +1,5 @@
 package com.example.schoolerp.security;
 
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,13 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         null,
                         userDetails.getAuthorities());
 
-        System.out.println("JWT USER: "+ userDetails.getUsername());
-        System.out.println("AUTHORITIES: "+ userDetails.getAuthorities());
+
         SecurityContextHolder.getContext().setAuthentication(token);
-        System.out.println(
-                "AUTHENTICATED: " +
-                        SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
-        );
+
         filterChain.doFilter(request, response);
 
     }
