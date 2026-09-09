@@ -28,14 +28,14 @@ public class UserController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
+    @PreAuthorize("hasAnyRole('SCHOOL_ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest){
         UserResponse response = userService.createUser(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
+    @PreAuthorize("hasAnyRole('SCHOOL_ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<UserResponse> updateStatus(@PathVariable Long id,
                                                      @RequestBody UserStatus status){
         UserResponse response = userService.updateStatus(id, status);

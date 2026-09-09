@@ -34,12 +34,47 @@ public class UserService {
     }
 
     public UserResponse createUser(UserRequest request){
-        School school = null;
 
-        if(request.getRole() != UserRole.SUPER_ADMIN
-        && request.getSchoolId() == null){
-            throw new IllegalArgumentException("School is required for this role");
+        User currentUser = currentUserService.getCurrentUser();
+
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN){
+            if (request.getRole() != UserRole.SCHOOL_ADMIN){
+                throw new IllegalArgumentException(
+                        "Super Admin can only create School Admins"
+                );
+            }
+
+            if (request.getSchoolId() == null){
+                throw new IllegalArgumentException(
+                        "School is required for School Admin"
+                );
+            }
+
         }
+
+        if (currentUser.getRole() == UserRole.SCHOOL_ADMIN){
+            if (request.getRole() != UserRole.TEACHER &&
+                    request.getRole() != UserRole.STUDENT){
+                throw new IllegalArgumentException(
+                        "School Admin can only create Teachers or Students"
+                );
+            }
+
+            if (request.getSchoolId() == null){
+                throw new IllegalArgumentException(
+                        "School is required"
+                );
+            }
+
+            if (!currentUserService.getCurrentSchoolId()
+                    .equals(request.getSchoolId())){
+                throw new IllegalArgumentException(
+                        "You can only create users for your own school"
+                );
+            }
+        }
+
+        School school = null;
 
         if (request.getSchoolId() != null){
             school = schoolRepository.findById(request.getSchoolId())
