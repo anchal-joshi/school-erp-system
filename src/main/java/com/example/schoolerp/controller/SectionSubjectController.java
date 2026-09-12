@@ -5,6 +5,7 @@ import com.example.schoolerp.dto.SectionSubjectResponse;
 import com.example.schoolerp.service.SectionSubjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,16 +21,19 @@ public class SectionSubjectController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
     public ResponseEntity<SectionSubjectResponse> create(@RequestBody SectionSubjectRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createSectionSubject(request));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
     public ResponseEntity<List<SectionSubjectResponse>> getSubjectsBySection(@PathVariable Long id){
         return ResponseEntity.ok(service.getSubjectsBySection(id));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
     public void deleteById(@PathVariable Long id){
         service.deleteById(id);
     }
