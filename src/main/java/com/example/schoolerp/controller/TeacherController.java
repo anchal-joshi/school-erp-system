@@ -2,6 +2,7 @@ package com.example.schoolerp.controller;
 
 import com.example.schoolerp.dto.TeacherRequest;
 import com.example.schoolerp.dto.TeacherResponse;
+import com.example.schoolerp.dto.TeacherUpdateRequest;
 import com.example.schoolerp.service.TeacherService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,22 @@ public class TeacherController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
     public ResponseEntity<TeacherResponse> getTeacherById(@PathVariable Long id){
         return ResponseEntity.ok(teacherService.getTeacherById(id));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
+    public ResponseEntity<TeacherResponse> update(@PathVariable Long id,
+                                                  @RequestBody TeacherUpdateRequest request){
+        return ResponseEntity.ok(teacherService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SCHOOL_ADMIN')")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id){
+        teacherService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

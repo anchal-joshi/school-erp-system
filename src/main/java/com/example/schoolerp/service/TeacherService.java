@@ -2,14 +2,18 @@ package com.example.schoolerp.service;
 
 import com.example.schoolerp.dto.TeacherRequest;
 import com.example.schoolerp.dto.TeacherResponse;
+import com.example.schoolerp.dto.TeacherUpdateRequest;
 import com.example.schoolerp.entity.*;
+import com.example.schoolerp.exception.SchoolNotFoundException;
 import com.example.schoolerp.exception.TeacherNotFoundException;
+import com.example.schoolerp.repository.SchoolRepository;
 import com.example.schoolerp.repository.TeacherRepository;
 import com.example.schoolerp.repository.UserRepository;
 import com.example.schoolerp.security.CurrentUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -20,12 +24,14 @@ public class TeacherService {
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
     private final PasswordEncoder passwordEncoder;
+    private final SchoolRepository schoolRepository;
 
-    public TeacherService(TeacherRepository teacherRepository, UserRepository userRepository, CurrentUserService currentUserService, PasswordEncoder passwordEncoder) {
+    public TeacherService(TeacherRepository teacherRepository, UserRepository userRepository, CurrentUserService currentUserService, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository) {
         this.teacherRepository = teacherRepository;
         this.userRepository = userRepository;
         this.currentUserService = currentUserService;
         this.passwordEncoder = passwordEncoder;
+        this.schoolRepository = schoolRepository;
     }
 
     @Transactional
@@ -90,7 +96,7 @@ public class TeacherService {
         Long schoolId = currentUserService.getCurrentSchoolId();
 
         Teacher teacher = teacherRepository.findById(id)
-                .orElseThrow(() -> new TeacherNotFoundException("Teach not found with id: "+ id));
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher not found with id: "+ id));
 
         if (!schoolId.equals(teacher.getUser().getSchool().getId())){
             throw new IllegalArgumentException("You can only access teachers of your own school");
@@ -103,6 +109,49 @@ public class TeacherService {
                 teacher.getName(),
                 teacher.getPhone()
         );
+    }
+
+    public TeacherResponse update(Long id, TeacherUpdateRequest request){
+
+        Long schoolId = currentUserService.getCurrentSchoolId();
+
+        Teacher teacher = teacherRepository.findById(id)
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher not found with id: "+ id));
+
+        if (!teacher.getUser().getSchool().getId().equals(schoolId)){
+            throw new IllegalArgumentException("You can only update teachers of your own school");
+        }
+
+        teacher.setName(request.getName());
+        teacher.setPhone(request.getPhone());
+
+        Teacher savedTeacher = teacherRepository.save(teacher);
+
+        return new TeacherResponse(
+                savedTeacher.getId(),
+                savedTeacher.getUser().getId(),
+                savedTeacher.getUser().getEmail(),
+                savedTeacher.getName(),
+                savedTeacher.getPhone()
+        );
+    }
+
+    public void delete(Long id){
+
+        Long schoolId = currentUserService.getCurrentSchoolId();
+
+        Teacher teacher = teacherRepository.findById(id)
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher not found with id: "+ id));
+
+        if (!teacher.getUser().getSchool().getId().equals(schoolId)){
+            throw new IllegalArgumentException("You can only delete teacher from your own school");
+        }
+
+        User user = teacher.getUser();
+
+        teacherRepository.deleteById(id);
+        userRepository.delete(user);
+
     }
 
 
