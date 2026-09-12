@@ -3,12 +3,15 @@ package com.example.schoolerp.service;
 import com.example.schoolerp.dto.TeacherRequest;
 import com.example.schoolerp.dto.TeacherResponse;
 import com.example.schoolerp.entity.*;
+import com.example.schoolerp.exception.TeacherNotFoundException;
 import com.example.schoolerp.repository.TeacherRepository;
 import com.example.schoolerp.repository.UserRepository;
 import com.example.schoolerp.security.CurrentUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class TeacherService {
@@ -61,5 +64,47 @@ public class TeacherService {
                 savedTeacher.getPhone()
         );
     }
+
+    public List<TeacherResponse> getAllTeachers(){
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        List<Teacher> teachers = teacherRepository.findByUser_School_Id(currentUser.getSchool().getId());
+
+        List<TeacherResponse> responses = teachers
+                .stream()
+                .map(teacher -> new TeacherResponse(
+                        teacher.getId(),
+                        teacher.getUser().getId(),
+                        teacher.getUser().getEmail(),
+                        teacher.getName(),
+                        teacher.getPhone()
+                )).toList();
+
+        return responses;
+    }
+
+
+    public TeacherResponse getTeacherById(Long id){
+
+        Long schoolId = currentUserService.getCurrentSchoolId();
+
+        Teacher teacher = teacherRepository.findById(id)
+                .orElseThrow(() -> new TeacherNotFoundException("Teach not found with id: "+ id));
+
+        if (!schoolId.equals(teacher.getUser().getSchool().getId())){
+            throw new IllegalArgumentException("You can only access teachers of your own school");
+        }
+
+        return new TeacherResponse(
+                teacher.getId(),
+                teacher.getUser().getId(),
+                teacher.getUser().getEmail(),
+                teacher.getName(),
+                teacher.getPhone()
+        );
+    }
+
+
 
 }
