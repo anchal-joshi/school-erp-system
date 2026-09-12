@@ -5,6 +5,7 @@ import com.example.schoolerp.dto.SectionSubjectResponse;
 import com.example.schoolerp.entity.*;
 import com.example.schoolerp.exception.SchoolNotFoundException;
 import com.example.schoolerp.exception.SectionNotFoundException;
+import com.example.schoolerp.exception.SectionSubjectNotFoundException;
 import com.example.schoolerp.exception.SubjectNotFoundException;
 import com.example.schoolerp.repository.SchoolRepository;
 import com.example.schoolerp.repository.SectionRepository;
@@ -12,6 +13,8 @@ import com.example.schoolerp.repository.SectionSubjectRepository;
 import com.example.schoolerp.repository.SubjectRepository;
 import com.example.schoolerp.security.CurrentUserService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SectionSubjectService {
@@ -74,4 +77,43 @@ public class SectionSubjectService {
                 saved.getSchool().getId()
         );
     }
+
+    public List<SectionSubjectResponse> getSubjectsBySection(Long id){
+        User currentUser = currentUserService.getCurrentUser();
+
+        Section section = sectionRepository.findById(id)
+                .orElseThrow(() -> new SectionNotFoundException("Section not foud with id: "+ id));
+
+        if (!section.getSchool().getId().equals(currentUser.getSchool().getId())){
+            throw new IllegalArgumentException("You can only get subjects from your own school");
+        }
+
+        Long schoolId = currentUser.getSchool().getId();
+
+        List<SectionSubject> sectionSubjects = sectionSubjectRepository.findAllBySchool_IdAndSection_Id(schoolId, id);
+
+        List<SectionSubjectResponse> responses = sectionSubjects.stream()
+                .map(sectionSubject -> new SectionSubjectResponse(
+                        sectionSubject.getId(),
+                        sectionSubject.getSection().getId(),
+                        sectionSubject.getSubject().getId(),
+                        sectionSubject.getSchool().getId()
+                )).toList();
+
+        return responses;
+    }
+
+    public void deleteById(Long id){
+        User currentUser = currentUserService.getCurrentUser();
+
+        SectionSubject sectionSubject = sectionSubjectRepository.findById(id)
+                .orElseThrow(() -> new SectionSubjectNotFoundException("SectionSubject not found with id "+ id));
+
+        if (!sectionSubject.getSchool().getId().equals(currentUser.getSchool().getId())){
+            throw new IllegalArgumentException("You can only delete SectionSubject for your own school");
+        }
+
+        sectionSubjectRepository.deleteById(id);
+    }
+
 }
