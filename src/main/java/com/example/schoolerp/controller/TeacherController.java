@@ -1,5 +1,6 @@
 package com.example.schoolerp.controller;
 
+import com.example.schoolerp.dto.ChangePasswordRequest;
 import com.example.schoolerp.dto.TeacherRequest;
 import com.example.schoolerp.dto.TeacherResponse;
 import com.example.schoolerp.dto.TeacherUpdateRequest;
@@ -52,5 +53,11 @@ public class TeacherController {
     public ResponseEntity<Void> deleteById(@PathVariable Long id){
         teacherService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/change-password")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request){
+        return ResponseEntity.ok(teacherService.changePassword(request));
     }
 }

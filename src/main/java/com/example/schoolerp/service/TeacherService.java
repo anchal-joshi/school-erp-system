@@ -1,10 +1,10 @@
 package com.example.schoolerp.service;
 
+import com.example.schoolerp.dto.ChangePasswordRequest;
 import com.example.schoolerp.dto.TeacherRequest;
 import com.example.schoolerp.dto.TeacherResponse;
 import com.example.schoolerp.dto.TeacherUpdateRequest;
 import com.example.schoolerp.entity.*;
-import com.example.schoolerp.exception.SchoolNotFoundException;
 import com.example.schoolerp.exception.TeacherNotFoundException;
 import com.example.schoolerp.repository.SchoolRepository;
 import com.example.schoolerp.repository.TeacherRepository;
@@ -13,7 +13,6 @@ import com.example.schoolerp.security.CurrentUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -154,6 +153,30 @@ public class TeacherService {
 
     }
 
+    public String changePassword(ChangePasswordRequest request){
 
+        User currentUser = currentUserService.getCurrentUser();
+
+        Teacher teacher = teacherRepository.findByUser_Id(currentUser.getId())
+                .orElseThrow(() ->
+                        new TeacherNotFoundException(
+                                "Teacher profile not found"));
+
+        if (!passwordEncoder.matches(
+                request.getOldPassword(),
+                currentUser.getPassword())){
+
+            throw new IllegalArgumentException(
+                    "Your current password which you entered is wrong");
+        }
+
+        currentUser.setPassword(
+                passwordEncoder.encode(request.getNewPassword())
+        );
+
+        userRepository.save(currentUser);
+
+        return "Password changed successfully!";
+    }
 
 }
