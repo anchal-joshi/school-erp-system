@@ -3,30 +3,30 @@ package com.example.schoolerp.entity;
 import jakarta.persistence.*;
 
 @Entity
-public class TeacherSubjectAssignment {
+public class StudentSubjectEnrollment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "teacher_id", nullable = false)
-    private Teacher teacher;
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
     @ManyToOne
-    @JoinColumn (nullable = false)
+    @JoinColumn(name = "section_subject_id", nullable = false)
     private SectionSubject sectionSubject;
 
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
-    public TeacherSubjectAssignment() {
+    public StudentSubjectEnrollment() {
     }
 
-    public TeacherSubjectAssignment(Long id, Teacher teacher, SectionSubject sectionSubject, School school) {
+    public StudentSubjectEnrollment(Long id, Student student, SectionSubject sectionSubject, School school) {
         this.id = id;
-        this.teacher = teacher;
+        this.student = student;
         this.sectionSubject = sectionSubject;
         this.school = school;
     }
@@ -39,12 +39,12 @@ public class TeacherSubjectAssignment {
         this.id = id;
     }
 
-    public Teacher getTeacher() {
-        return teacher;
+    public Student getStudent() {
+        return student;
     }
 
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
+    public void setStudent(Student student) {
+        this.student = student;
     }
 
     public SectionSubject getSectionSubject() {
