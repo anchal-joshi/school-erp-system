@@ -9,6 +9,8 @@ public interface SectionSubjectRepository extends JpaRepository<SectionSubject, 
 
     List<SectionSubject> findAllBySchool_Id(Long schoolId);
 
+    List<SectionSubject> findAllBySection_Id(Long sectionId);
+
     List<SectionSubject> findAllBySchool_IdAndSection_Id(Long schoolId,
                                                          Long sectionId);
 }

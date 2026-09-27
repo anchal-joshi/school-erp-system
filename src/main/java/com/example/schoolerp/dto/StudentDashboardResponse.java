@@ -1,21 +1,18 @@
 package com.example.schoolerp.dto;
 
-import jakarta.persistence.Entity;
-
 import java.util.List;
 
-@Entity
 public class StudentDashboardResponse {
 
     private StudentResponse profile;
     private List<SubjectResponse> subjects;
-    private AttendanceResponse attendance;
-    private MarksResponse marks;
+    private AttendanceSummaryResponse attendance;
+    private List<ExamResultResponse> marks;
 
     public StudentDashboardResponse() {
     }
 
-    public StudentDashboardResponse(StudentResponse profile, List<SubjectResponse> subjects, AttendanceResponse attendance, MarksResponse marks) {
+    public StudentDashboardResponse(StudentResponse profile, List<SubjectResponse> subjects, AttendanceSummaryResponse attendance, List<ExamResultResponse> marks) {
         this.profile = profile;
         this.subjects = subjects;
         this.attendance = attendance;
@@ -38,19 +35,19 @@ public class StudentDashboardResponse {
         this.subjects = subjects;
     }
 
-    public AttendanceResponse getAttendance() {
+    public AttendanceSummaryResponse getAttendance() {
         return attendance;
     }
 
-    public void setAttendance(AttendanceResponse attendance) {
+    public void setAttendance(AttendanceSummaryResponse attendance) {
         this.attendance = attendance;
     }
 
-    public MarksResponse getMarks() {
+    public List<ExamResultResponse> getMarks() {
         return marks;
     }
 
-    public void setMarks(MarksResponse marks) {
+    public void setMarks(List<ExamResultResponse> marks) {
         this.marks = marks;
     }
 }
