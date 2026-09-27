@@ -8,4 +8,6 @@ import java.util.List;
 public interface TeacherSubjectAssignmentRepository extends JpaRepository<TeacherSubjectAssignment, Long> {
 
     List<TeacherSubjectAssignment> findAllBySchool_Id(Long id);
+
+    List<TeacherSubjectAssignment> findByTeacher_Id(Long teacherId);
 }
