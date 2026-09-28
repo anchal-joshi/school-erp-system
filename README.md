@@ -58,7 +58,7 @@ A multi-tenant School ERP backend built with Java and Spring Boot to manage core
 
 The application follows a layered architecture:
 
-```text
+```
 Controller
     ↓
 Service
@@ -84,14 +84,14 @@ Layer Responsibilities
 - DTO: Defines request and response objects.
 - Security: Handles JWT authentication, Spring Security, and the current authenticated user.
 - Exception: Contains custom application exceptions.
-
+```
 ## Authentication & Security
 
 The application uses **Spring Security and JWT** for authentication and role-based authorization.
 
 ### Authentication Flow
 
-```text
+```
 User Login
     ↓
 Authentication
